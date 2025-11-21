@@ -1,0 +1,87 @@
+# Starter pipeline for IT Asset Management Tool
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - main
+
+pool:
+  name: 'ubuntu'  # Using self-hosted agent pool
+  # Alternative: Use Microsoft-hosted agent
+  # vmImage: 'ubuntu-latest'
+
+# Variables - Update these with your values or create a variable group
+variables:
+  # Option 1: Use variable group (recommended for production)
+  # - group: 'it-asset-management-variables'  # Uncomment after creating variable group
+  
+  # Option 2: Define variables directly (for testing)
+  - name: dockerRegistryServiceConnection
+    value: 'ACR_ServiceConnection'  # Update with your service connection name
+  - name: imageRepository
+    value: 'it-asset-management'
+  - name: containerRegistry
+    value: 'your-acr.azurecr.io'  # Update with your ACR name
+    # Or use variable: value: '$(ACR_NAME).azurecr.io' if using variable group
+
+steps:
+  # Display build information
+  - script: |
+      echo "Building IT Asset Management Tool"
+      echo "Build ID: $(Build.BuildId)"
+      echo "Source Branch: $(Build.SourceBranchName)"
+      echo "Repository: $(Build.Repository.Name)"
+    displayName: 'Display build information'
+
+  # Build Backend Docker Image
+  - task: Docker@2
+    displayName: 'Build Backend Image'
+    inputs:
+      command: build
+      repository: '$(imageRepository)-backend'
+      dockerfile: 'Dockerfile'
+      containerRegistry: '$(dockerRegistryServiceConnection)'
+      tags: |
+        $(Build.BuildId)
+        latest
+
+  # Build Frontend Docker Image
+  - task: Docker@2
+    displayName: 'Build Frontend Image'
+    inputs:
+      command: build
+      repository: '$(imageRepository)-frontend'
+      dockerfile: 'client/Dockerfile'
+      containerRegistry: '$(dockerRegistryServiceConnection)'
+      tags: |
+        $(Build.BuildId)
+        latest
+
+  # Push Backend Image to ACR
+  - task: Docker@2
+    displayName: 'Push Backend Image'
+    inputs:
+      command: push
+      repository: '$(imageRepository)-backend'
+      containerRegistry: '$(dockerRegistryServiceConnection)'
+      tags: |
+        $(Build.BuildId)
+        latest
+
+  # Push Frontend Image to ACR
+  - task: Docker@2
+    displayName: 'Push Frontend Image'
+    inputs:
+      command: push
+      repository: '$(imageRepository)-frontend'
+      containerRegistry: '$(dockerRegistryServiceConnection)'
+      tags: |
+        $(Build.BuildId)
+        latest
+
+  # Optional: Add deployment steps here
+  # - script: |
+  #     echo Add deployment tasks here
+  #     echo Deploy to Azure Container Apps, App Service, etc.
+  #   displayName: 'Deploy to Azure'
