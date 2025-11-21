@@ -1,0 +1,41 @@
+{
+  "name": "it-asset-management",
+  "version": "1.0.0",
+  "description": "IT Asset Management Tool with Cybersecurity Theme",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev:alt": "PORT=5001 PORT_CLIENT=3001 REACT_APP_API_URL=http://localhost:5001/api concurrently \"PORT=5001 npm run server\" \"PORT=3001 REACT_APP_API_URL=http://localhost:5001/api npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "cd client && PORT=${PORT_CLIENT:-3000} npm start",
+    "install-all": "npm install && cd client && npm install",
+    "build": "cd client && npm run build",
+    "kill-ports": "fuser -k 5000/tcp 3000/tcp 2>/dev/null || echo 'Ports cleared (or already free)'",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up",
+    "docker:logs": "docker-compose logs -f",
+    "docker:cleanup": "./docker-cleanup.sh",
+    "docker:alt": "docker-compose -f docker-compose.alt.yml up --build",
+    "docker:auto": "./find-free-ports.sh",
+    "docker:custom": "docker-compose -f docker-compose.custom.yml up --build"
+  },
+  "keywords": ["asset", "management", "it", "cybersecurity"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "sqlite3": "^5.1.6",
+    "express-validator": "^7.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "concurrently": "^8.2.2"
+  }
+}
+

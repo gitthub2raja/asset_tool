@@ -1,0 +1,46 @@
+version: '3.8'
+
+# Single port configuration - Everything accessible through port 80
+# Frontend and API both accessible via nginx reverse proxy
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: it-asset-backend
+    # No external port mapping - only accessible via nginx
+    expose:
+      - "5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production-use-a-strong-random-string}
+    volumes:
+      - backend-data:/app/server/database
+    restart: unless-stopped
+    networks:
+      - asset-network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      # Don't hardcode API URL - let frontend detect it at runtime
+    container_name: it-asset-frontend
+    ports:
+      - "80:80"  # Only port 80 exposed
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - asset-network
+
+volumes:
+  backend-data:
+    driver: local
+
+networks:
+  asset-network:
+    driver: bridge
+
