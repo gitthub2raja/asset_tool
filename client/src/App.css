@@ -163,7 +163,7 @@
   background: rgba(255, 190, 11, 0.2);
   color: var(--cyber-yellow);
   border: 1px solid var(--cyber-yellow);
-}
+  }
 
 .status-retired {
   background: rgba(255, 0, 110, 0.2);
